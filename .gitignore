@@ -1,0 +1,90 @@
+# ========================
+# BACKEND (Python / Server)
+# ========================
+
+# Virtual Environment
+venv/
+env/
+.env/
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Backend specific
+backend/.env
+backend/data*
+backend/models*
+backend/src/data*
+backend/temp*
+backend/partial_waste_predictions.csv
+backend/static/
+backend/*.log
+
+# Catch any env files anywhere
+**/.env
+**/.env.*
+
+# ========================
+# FRONTEND (React / Node)
+# ========================
+
+# Dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Debug logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Build outputs
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+
+# Testing
+frontend/coverage/
+
+# Local env files
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# ========================
+# COMMON
+# ========================
+
+# Logs
+*.log
+logs/
+log/
+
+# System files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Editor/IDE
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+.settings/
+.project
+.classpath
+
+# Misc
+*.bak
+*.tmp
+*.temp
+.cache/

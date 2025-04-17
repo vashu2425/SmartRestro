@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, select, textarea, button {
+            margin-top: 5px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input[type="file"] {
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-video {
+            max-width: 100%;
+            margin-top: 15px;
+        }
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            margin-top: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .progress-bar {
+            height: 24px;
+            width: 0;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 24px;
+            color: white;
+            font-weight: bold;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kitchen Management API Tester</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(0)">Simple Test</div>
+            <div class="tab" onclick="switchTab(1)">Stock Detection</div>
+            <div class="tab" onclick="switchTab(2)">Generic Endpoint</div>
+        </div>
+        
+        <!-- Simple Test Endpoint -->
+        <div class="tab-content section active" id="tab0">
+            <h2>Test Simple Endpoint</h2>
+            <div>
+                <label for="simple-method">Method:</label>
+                <select id="simple-method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                </select>
+                
+                <label for="simple-endpoint">Endpoint:</label>
+                <input type="text" id="simple-endpoint" value="/api/hello" placeholder="Enter endpoint (e.g., /api/hello)">
+                
+                <button onclick="testSimpleEndpoint()">Test Endpoint</button>
+                
+                <div class="loading-spinner" id="simple-spinner"></div>
+                <div id="simple-response" class="response"></div>
+            </div>
+        </div>
+        
+        <!-- Stock Detection with Video Upload -->
+        <div class="tab-content section" id="tab1">
+            <h2>Stock Detection with Video Upload</h2>
+            <div>
+                <label for="video-file">Upload Video File:</label>
+                <input type="file" id="video-file" accept="video/*">
+                
+                <button onclick="uploadVideo()">Upload and Process</button>
+                
+                <div class="loading-spinner" id="video-spinner"></div>
+                <div class="progress-container" id="video-progress-container">
+                    <div class="progress-bar" id="video-progress-bar">0%</div>
+                </div>
+                <div id="video-response" class="response"></div>
+                <div id="video-result"></div>
+            </div>
+        </div>
+        
+        <!-- Generic Endpoint Tester -->
+        <div class="tab-content section" id="tab2">
+            <h2>Generic Endpoint Tester</h2>
+            <div>
+                <label for="method">Method:</label>
+                <select id="method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                </select>
+                
+                <label for="endpoint">Endpoint:</label>
+                <input type="text" id="endpoint" placeholder="Enter endpoint (e.g., /api/demand-prediction)">
+                
+                <label for="params">Parameters (JSON format for POST):</label>
+                <textarea id="params" rows="5" placeholder='{"key": "value"}'></textarea>
+                
+                <button onclick="testEndpoint()">Test Endpoint</button>
+                
+                <div class="loading-spinner" id="generic-spinner"></div>
+                <div class="progress-container" id="generic-progress-container">
+                    <div class="progress-bar" id="generic-progress-bar">0%</div>
+                </div>
+                <div id="response" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch between tabs
+        function switchTab(tabIndex) {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach((tab, index) => {
+                if (index === tabIndex) {
+                    tab.classList.add('active');
+                    tabContents[index].classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                    tabContents[index].classList.remove('active');
+                }
+            });
+        }
+        
+        // Test a simple endpoint with GET or POST
+        async function testSimpleEndpoint() {
+            const endpoint = document.getElementById('simple-endpoint').value;
+            const method = document.getElementById('simple-method').value;
+            const responseElement = document.getElementById('simple-response');
+            const spinner = document.getElementById('simple-spinner');
+            
+            if (!endpoint) {
+                responseElement.innerHTML = '<span class="error">Please enter an endpoint</span>';
+                return;
+            }
+            
+            spinner.style.display = 'block';
+            responseElement.innerHTML = 'Requesting...';
+            
+            try {
+                let response;
+                if (method === 'GET') {
+                    response = await fetch(endpoint);
+                } else {
+                    response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    });
+                }
+                
+                const data = await response.json();
+                responseElement.innerHTML = `<span class="success">Status: ${response.status}</span>\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+        
+        // Upload a video for stock detection
+        async function uploadVideo() {
+            const fileInput = document.getElementById('video-file');
+            const responseElement = document.getElementById('video-response');
+            const resultElement = document.getElementById('video-result');
+            const spinner = document.getElementById('video-spinner');
+            const progressContainer = document.getElementById('video-progress-container');
+            const progressBar = document.getElementById('video-progress-bar');
+            
+            if (!fileInput.files.length) {
+                responseElement.innerHTML = '<span class="error">Please select a video file</span>';
+                return;
+            }
+            
+            spinner.style.display = 'block';
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            responseElement.innerHTML = 'Uploading...';
+            resultElement.innerHTML = '';
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('/api/stock-detection', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                responseElement.innerHTML = `<span class="success">Upload successful</span>\n${JSON.stringify(data, null, 2)}`;
+                
+                if (data.task_id) {
+                    // Start polling for task status
+                    pollTaskStatus(data.task_id, 'video');
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                spinner.style.display = 'none';
+                progressContainer.style.display = 'none';
+            }
+        }
+        
+        // Poll for task status
+        async function pollTaskStatus(taskId, type) {
+            let progressContainer, progressBar, responseElement, resultElement, spinner;
+            
+            if (type === 'video') {
+                progressContainer = document.getElementById('video-progress-container');
+                progressBar = document.getElementById('video-progress-bar');
+                responseElement = document.getElementById('video-response');
+                resultElement = document.getElementById('video-result');
+                spinner = document.getElementById('video-spinner');
+            } else {
+                progressContainer = document.getElementById('generic-progress-container');
+                progressBar = document.getElementById('generic-progress-bar');
+                responseElement = document.getElementById('response');
+                resultElement = null;
+                spinner = document.getElementById('generic-spinner');
+            }
+            
+            try {
+                const polling = setInterval(async () => {
+                    try {
+                        const response = await fetch(`/api/task-status/${taskId}`);
+                        const data = await response.json();
+                        
+                        // Update progress bar
+                        const progress = data.progress || 0;
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.textContent = `${progress}%`;
+                        
+                        if (data.status === 'completed') {
+                            clearInterval(polling);
+                            spinner.style.display = 'none';
+                            
+                            if (resultElement && data.result && data.result.video_url) {
+                                resultElement.innerHTML = `
+                                    <h3>Results:</h3>
+                                    <p><strong>Detected Items:</strong></p>
+                                    <pre>${JSON.stringify(data.result.results, null, 2)}</pre>
+                                    <video class="result-video" controls>
+                                        <source src="${data.result.video_url}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                `;
+                            }
+                            
+                            responseElement.innerHTML += `\n\n<span class="success">Processing complete!</span>`;
+                        } else if (data.status === 'failed') {
+                            clearInterval(polling);
+                            spinner.style.display = 'none';
+                            responseElement.innerHTML += `\n\n<span class="error">Processing failed: ${data.error}</span>`;
+                        }
+                    } catch (error) {
+                        console.error('Error polling task status:', error);
+                    }
+                }, 1000);
+            } catch (error) {
+                responseElement.innerHTML = `<span class="error">Error polling status: ${error.message}</span>`;
+                spinner.style.display = 'none';
+            }
+        }
+        
+        // Test a generic endpoint with parameters
+        async function testEndpoint() {
+            const endpoint = document.getElementById('endpoint').value;
+            const method = document.getElementById('method').value;
+            const paramsStr = document.getElementById('params').value;
+            const responseElement = document.getElementById('response');
+            const spinner = document.getElementById('generic-spinner');
+            const progressContainer = document.getElementById('generic-progress-container');
+            const progressBar = document.getElementById('generic-progress-bar');
+            
+            if (!endpoint) {
+                responseElement.innerHTML = '<span class="error">Please enter an endpoint</span>';
+                return;
+            }
+            
+            spinner.style.display = 'block';
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            responseElement.innerHTML = 'Requesting...';
+            
+            try {
+                let params = {};
+                if (paramsStr) {
+                    try {
+                        params = JSON.parse(paramsStr);
+                    } catch (e) {
+                        responseElement.innerHTML = '<span class="error">Invalid JSON in parameters</span>';
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                }
+                
+                let response;
+                if (method === 'GET') {
+                    // Add query parameters for GET
+                    const queryParams = new URLSearchParams();
+                    for (const key in params) {
+                        queryParams.append(key, params[key]);
+                    }
+                    
+                    const url = params && Object.keys(params).length > 0 
+                        ? `${endpoint}?${queryParams}` 
+                        : endpoint;
+                        
+                    response = await fetch(url);
+                } else {
+                    response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(params)
+                    });
+                }
+                
+                const data = await response.json();
+                responseElement.innerHTML = `<span class="success">Status: ${response.status}</span>\n${JSON.stringify(data, null, 2)}`;
+                
+                if (data.task_id) {
+                    progressContainer.style.display = 'block';
+                    // Start polling for task status
+                    pollTaskStatus(data.task_id, 'generic');
+                } else {
+                    spinner.style.display = 'none';
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html> 
